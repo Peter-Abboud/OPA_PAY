@@ -1,0 +1,22 @@
+@model OPA_Pay.ViewModels.ActiveAccountSwitcherViewModel
+
+@if (Model.Accounts.Any())
+{
+    <form asp-controller="Account" asp-action="SwitchActive" method="post" class="d-flex align-items-center gap-2">
+        @Html.AntiForgeryToken()
+        <label class="text-muted small mb-0 d-none d-md-inline">Wallet:</label>
+        <select name="accountId" class="form-select form-select-sm" style="min-width: 200px;"
+                onchange="this.form.submit()">
+            @foreach (var acc in Model.Accounts)
+            {
+                <option value="@acc.Id" selected="@(acc.Id == Model.ActiveAccountId)">
+                    @acc.Currency?.Code — @acc.Balance.ToString("N2")
+                </option>
+            }
+        </select>
+    </form>
+}
+else
+{
+    <a asp-controller="Account" asp-action="Create" class="btn btn-sm btn-opa">Create Wallet</a>
+}

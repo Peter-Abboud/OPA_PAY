@@ -1,0 +1,197 @@
+﻿@model OPA_Pay.ViewModels.TransferCreateViewModel
+
+@{ ViewData["Title"] = "Send Money"; }
+
+
+
+<div class="page-header">
+
+    <h1>Send Money</h1>
+
+    <p>Transfer to a saved beneficiary (account-to-account)</p>
+
+</div>
+
+
+
+@if (ViewBag.NoAccounts == true)
+
+{
+
+    <div class="alert alert-warning alert-opa">
+
+        You need an account before sending money.
+
+        <a asp-controller="Account" asp-action="Index" class="alert-link">View wallets</a>
+
+    </div>
+
+}
+
+
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-6">
+
+        <div class="opa-card">
+
+            <div class="opa-card-header">
+
+                <i class="fa fa-paper-plane me-2"></i> New Transfer
+
+            </div>
+
+            <div class="opa-card-body">
+
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                <form method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">From Account</label>
+
+                        <select asp-for="AccountId" class="form-select" asp-items="ViewBag.Accounts" required id="transferAccountId">
+
+                            <option value="">-- Select Account --</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">Beneficiary</label>
+
+                        <select asp-for="BeneficiaryId" class="form-select" asp-items="ViewBag.Beneficiaries" required>
+
+                            <option value="">-- Select Beneficiary --</option>
+
+                        </select>
+
+                        @if (ViewBag.HasBeneficiaries != true)
+
+                        {
+
+                            <div class="form-text text-warning">
+
+                                <a asp-controller="Beneficiary" asp-action="Create">Add a beneficiary first</a>
+
+                            </div>
+
+                        }
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">Amount</label>
+
+                        <input asp-for="Amount" class="form-control" type="number" step="0.01" min="0.01" required id="transferAmount" />
+
+                        <span asp-validation-for="Amount" class="text-danger"></span>
+
+                    </div>
+
+
+
+                    <div class="alert alert-light border mb-4" id="feePreview" style="display:none;">
+
+                        <div class="d-flex justify-content-between small">
+
+                            <span>Fee</span>
+
+                            <span id="feeValue">—</span>
+
+                        </div>
+
+                        <div class="d-flex justify-content-between fw-semibold">
+
+                            <span>Total debited</span>
+
+                            <span id="feeTotal" class="text-primary">—</span>
+
+                        </div>
+
+                        <div class="form-text mt-1" id="feeDetail"></div>
+
+                    </div>
+
+
+
+                    <button type="submit" class="btn btn-opa py-2 w-100" @(ViewBag.NoAccounts == true ? "disabled" : "")>
+
+                        <i class="fa fa-paper-plane me-2"></i> Send Transfer
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+@section Scripts {
+
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+
+    <script>
+
+        async function updateFeePreview() {
+
+            const accountId = document.getElementById('transferAccountId').value;
+
+            const amount = parseFloat(document.getElementById('transferAmount').value);
+
+            const box = document.getElementById('feePreview');
+
+            if (!accountId || !amount || amount <= 0) {
+
+                box.style.display = 'none';
+
+                return;
+
+            }
+
+            const res = await fetch(`@Url.Action("EstimateFee")?accountId=${accountId}&amount=${amount}`);
+
+            const data = await res.json();
+
+            if (data.error) {
+
+                box.style.display = 'none';
+
+                return;
+
+            }
+
+            document.getElementById('feeValue').textContent = `${data.fee.toFixed(2)} ${data.currency}`;
+
+            document.getElementById('feeTotal').textContent = `${data.total.toFixed(2)} ${data.currency}`;
+
+            document.getElementById('feeDetail').textContent =
+
+                `Includes ${data.percentage}% + $${data.fixedFeeUsd.toFixed(2)} USD fixed fee (converted to ${data.currency})`;
+
+            box.style.display = 'block';
+
+        }
+
+        document.getElementById('transferAccountId')?.addEventListener('change', updateFeePreview);
+
+        document.getElementById('transferAmount')?.addEventListener('input', updateFeePreview);
+
+    </script>
+
+}
+
+

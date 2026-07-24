@@ -1,0 +1,27 @@
+@model OPA_Pay.Models.Beneficiary
+@{ ViewData["Title"] = "Beneficiary Details"; }
+
+<div class="page-header">
+    <h1>@Model.FullName</h1>
+    <p>Beneficiary details</p>
+</div>
+
+<div class="opa-card col-lg-6">
+    <div class="opa-card-body">
+        <dl class="row">
+            <dt class="col-sm-4">Account #</dt>
+            <dd class="col-sm-8"><code>@Model.AccountNumber</code></dd>
+            @if (!string.IsNullOrEmpty(Model.MobileNumber))
+            {
+                <dt class="col-sm-4">Mobile</dt>
+                <dd class="col-sm-8">@Model.MobileNumber</dd>
+            }
+            <dt class="col-sm-4">Bank</dt>
+            <dd class="col-sm-8">@Model.BankName</dd>
+            <dt class="col-sm-4">Country</dt>
+            <dd class="col-sm-8">@Model.Country</dd>
+        </dl>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-sm">Edit</a>
+        <a asp-action="Index" class="btn btn-opa-outline btn-sm">Back</a>
+    </div>
+</div>

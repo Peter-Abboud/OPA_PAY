@@ -1,0 +1,13 @@
+﻿@{ ViewData["Title"] = "Payment Successful"; }
+
+<div class="text-center py-5">
+    <div class="feature-icon bg-success bg-opacity-10 text-success mx-auto mb-3" style="width:80px;height:80px;font-size:2rem;">
+        <i class="fa fa-check"></i>
+    </div>
+    <h2 class="text-success">Payment Successful!</h2>
+    @if (ViewBag.Amount != null)
+    {
+        <p class="lead">@(((decimal)ViewBag.Amount).ToString("N2")) added to your account.</p>
+    }
+    <a asp-controller="Account" asp-action="Index" class="btn btn-opa mt-3">View Accounts</a>
+</div>

@@ -1,0 +1,126 @@
+@model OPA_Pay.ViewModels.FundRequestAdminListViewModel
+@{ ViewData["Title"] = "All Top-Ups"; }
+
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+        <h1>All Top-Ups</h1>
+        <p class="mb-0 text-muted">Every add-funds request — who requested it and which agent approved or rejected it.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="fa fa-arrow-left me-1"></i> Admin Panel
+    </a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Total</div>
+            <div class="stat-value">@Model.TotalCount</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Pending</div>
+            <div class="stat-value text-warning">@Model.PendingCount</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Approved</div>
+            <div class="stat-value text-success">@Model.ApprovedCount</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Rejected</div>
+            <div class="stat-value text-danger">@Model.RejectedCount</div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex gap-2 mb-3 flex-wrap">
+    <a asp-action="FundRequests" class="btn btn-sm @(string.IsNullOrEmpty(Model.FilterStatus) ? "btn-opa" : "btn-opa-outline")">All</a>
+    <a asp-action="FundRequests" asp-route-status="Pending" class="btn btn-sm @(Model.FilterStatus == "Pending" ? "btn-opa" : "btn-opa-outline")">Pending</a>
+    <a asp-action="FundRequests" asp-route-status="Approved" class="btn btn-sm @(Model.FilterStatus == "Approved" ? "btn-opa" : "btn-opa-outline")">Approved</a>
+    <a asp-action="FundRequests" asp-route-status="Rejected" class="btn btn-sm @(Model.FilterStatus == "Rejected" ? "btn-opa" : "btn-opa-outline")">Rejected</a>
+</div>
+
+<div class="alert alert-info alert-opa small">
+    <i class="fa fa-store me-1"></i>
+    Agents approve top-ups from <strong>Agent → Fund Requests</strong>. This page is the full audit trail for administrators.
+</div>
+
+@if (!Model.Rows.Any())
+{
+    <div class="opa-card">
+        <div class="opa-card-body text-center text-muted py-5">
+            <i class="fa fa-inbox fa-3x mb-3 opacity-50"></i>
+            <p class="mb-0">No top-up requests match this filter.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="table-responsive opa-card">
+        <table class="table table-hover mb-0 table-opa">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Client</th>
+                    <th>Wallet</th>
+                    <th>Amount</th>
+                    <th>Requested</th>
+                    <th>Status</th>
+                    <th>Processed by</th>
+                    <th>Processed at</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in Model.Rows)
+                {
+                    var req = row.Request;
+                    <tr>
+                        <td class="text-muted">@req.Id</td>
+                        <td>
+                            <strong>@req.User?.FullName</strong><br />
+                            <small class="text-muted">@req.User?.Email</small>
+                        </td>
+                        <td>
+                            @req.Account?.AccountNumber<br />
+                            <span class="badge bg-secondary">@req.Account?.Currency?.Code</span>
+                        </td>
+                        <td class="fw-semibold">@req.Amount.ToString("N2")</td>
+                        <td class="small">@req.CreatedAt.ToString("g")</td>
+                        <td>
+                            @if (req.Status == "Approved")
+                            {
+                                <span class="badge-status badge-completed">Approved</span>
+                            }
+                            else if (req.Status == "Rejected")
+                            {
+                                <span class="badge-status badge-failed">Rejected</span>
+                            }
+                            else
+                            {
+                                <span class="badge-status badge-pending">Pending</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(row.ProcessedByDisplay))
+                            {
+                                <span class="fw-semibold">@row.ProcessedByDisplay</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td class="small text-muted">
+                            @(req.ProcessedAt?.ToString("g") ?? "—")
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

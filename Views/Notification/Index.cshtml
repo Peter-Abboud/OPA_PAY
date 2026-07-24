@@ -1,0 +1,48 @@
+﻿@model IEnumerable<OPA_Pay.Models.Notification>
+@{ ViewData["Title"] = "Notifications"; }
+
+<div class="page-header d-flex justify-content-between">
+    <div>
+        <h1>Notifications</h1>
+        <p>Transfer updates and account alerts</p>
+    </div>
+    @if (Model.Any(n => !n.IsRead))
+    {
+        <a asp-action="MarkAllRead" class="btn btn-opa-outline btn-sm">Mark All Read</a>
+    }
+</div>
+
+<div class="list-group">
+    @foreach (var item in Model)
+    {
+        <div class="list-group-item list-group-item-action @(item.IsRead ? "" : "border-start border-primary border-3")">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h6 class="mb-1 fw-semibold">@item.Title</h6>
+                    <p class="mb-1 text-muted">@item.Message</p>
+                    <small class="text-muted">@item.CreatedAt.ToString("dd MMM yyyy HH:mm")</small>
+                </div>
+                <div class="text-end">
+                    @if (!item.IsRead)
+                    {
+                        <span class="badge bg-primary mb-2">New</span>
+                        <br />
+                        <a asp-action="MarkAsRead" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Mark Read</a>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Read</span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center text-muted py-5">
+        <i class="fa fa-bell-slash fa-3x mb-3"></i>
+        <p>No notifications yet.</p>
+    </div>
+}

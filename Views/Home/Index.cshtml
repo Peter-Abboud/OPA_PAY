@@ -1,0 +1,49 @@
+﻿@{ ViewData["Title"] = "Home"; }
+
+<div class="hero-section text-center">
+    <h1 class="display-5 fw-bold mb-3">Welcome to OPA Pay</h1>
+    <p class="lead mb-4 opacity-90">Fast, affordable, and reliable cross-border money transfers</p>
+    @if (!User.Identity!.IsAuthenticated)
+    {
+        <div class="d-flex gap-3 justify-content-center">
+            <a asp-controller="Auth" asp-action="Register" class="btn btn-light btn-lg px-4">Get Started</a>
+            <a asp-controller="Auth" asp-action="Login" class="btn btn-outline-light btn-lg px-4">Sign In</a>
+        </div>
+    }
+    else
+    {
+        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-light btn-lg px-4">
+            <i class="fa fa-chart-line me-2"></i> Go to Dashboard
+        </a>
+    }
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="feature-card">
+            <div class="feature-icon bg-primary bg-opacity-10 text-primary">
+                <i class="fa fa-wallet"></i>
+            </div>
+            <h5>Multi-Currency Accounts</h5>
+            <p class="text-muted mb-0">USD, EUR, and LBP with automatic conversion on transfers.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card">
+            <div class="feature-icon bg-success bg-opacity-10 text-success">
+                <i class="fa fa-money-bill-transfer"></i>
+            </div>
+            <h5>Instant Transfers</h5>
+            <p class="text-muted mb-0">Send to beneficiaries or via mobile pickup at local agents.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card">
+            <div class="feature-icon bg-warning bg-opacity-10 text-warning">
+                <i class="fa fa-map-location-dot"></i>
+            </div>
+            <h5>Agent Network</h5>
+            <p class="text-muted mb-0">Find approved agents near you on our interactive map.</p>
+        </div>
+    </div>
+</div>

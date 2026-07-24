@@ -1,0 +1,61 @@
+@model IEnumerable<OPA_Pay.Models.Agent>
+@{ ViewData["Title"] = "Manage Agents"; }
+
+<div class="page-header">
+    <h1>Agent Approvals</h1>
+    <p>Approve or reject partner store registrations</p>
+</div>
+
+<div class="opa-card">
+    <div class="table-responsive">
+        <table class="table table-opa mb-0">
+            <thead>
+                <tr>
+                    <th>Office</th>
+                    <th>City</th>
+                    <th>Hours</th>
+                    <th>Status</th>
+                    <th>Approved</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@item.OfficeName</td>
+                        <td>@item.City</td>
+                        <td class="small">@item.OpeningTime.ToString(@"hh\:mm") — @item.ClosingTime.ToString(@"hh\:mm")</td>
+                        <td>
+                            @if (item.IsOpen)
+                            { <span class="badge-status badge-completed">Open</span> }
+                            else
+                            { <span class="badge-status badge-pending">Closed</span> }
+                        </td>
+                        <td>
+                            @if (item.IsApproved)
+                            { <span class="badge bg-primary">Approved</span> }
+                            else
+                            { <span class="badge bg-warning text-dark">Pending</span> }
+                        </td>
+                        <td>
+                            @if (!item.IsApproved)
+                            {
+                                <form asp-action="ApproveAgent" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <button class="btn btn-sm btn-success">Approve</button>
+                                </form>
+                            }
+                            <form asp-action="RejectAgent" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button class="btn btn-sm btn-outline-danger">Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

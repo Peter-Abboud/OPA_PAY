@@ -1,0 +1,48 @@
+﻿@model IEnumerable<OPA_Pay.Models.Transaction>
+@{ ViewData["Title"] = "Transactions"; }
+
+<div class="page-header">
+    <h1>Transactions</h1>
+    <p>Your complete transaction history</p>
+</div>
+
+<div class="opa-card">
+    <div class="table-responsive">
+        <table class="table table-opa mb-0">
+            <thead>
+                <tr>
+                    <th>Reference</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Currency</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model)
+                {
+                    <tr>
+                        <td>
+                            @if (t.Transfer != null)
+                            {
+                                <code class="small">@t.Transfer.Reference</code>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td><span class="badge bg-secondary">@t.Type</span></td>
+                        <td class="fw-semibold">@t.Amount.ToString("N2")</td>
+                        <td>@t.Account?.Currency?.Code</td>
+                        <td class="text-muted small">@t.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (!Model.Any())
+        {
+            <p class="text-muted text-center p-4 mb-0">No transactions yet.</p>
+        }
+    </div>
+</div>

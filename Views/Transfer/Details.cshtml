@@ -1,0 +1,167 @@
+﻿@model OPA_Pay.Models.Transfer
+
+@{
+
+    ViewData["Title"] = "Transfer Details";
+
+    var currency = Model.Account?.Currency?.Code ?? "";
+
+}
+
+
+
+<div class="page-header">
+
+    <h1>Transfer Details</h1>
+
+    <p>Reference: <code>@Model.Reference</code></p>
+
+</div>
+
+
+
+@if (TempData["Success"] != null)
+
+{
+
+    <div class="alert alert-success alert-opa">@TempData["Success"]</div>
+
+}
+
+
+
+<div class="row g-4">
+
+    <div class="col-lg-6">
+
+        <div class="opa-card">
+
+            <div class="opa-card-header">Transfer Information</div>
+
+            <div class="opa-card-body">
+
+                <dl class="row mb-0">
+
+                    <dt class="col-sm-4">Wallet</dt>
+
+                    <dd class="col-sm-8">@currency</dd>
+
+                    <dt class="col-sm-4">Amount</dt>
+
+                    <dd class="col-sm-8 fw-bold text-primary">@Model.Amount.ToString("N2") @currency</dd>
+
+                    <dt class="col-sm-4">Fee</dt>
+
+                    <dd class="col-sm-8">@Model.Fee.ToString("N2") @currency</dd>
+
+                    <dt class="col-sm-4">Total debited</dt>
+
+                    <dd class="col-sm-8 fw-semibold">@((Model.Amount + Model.Fee).ToString("N2")) @currency</dd>
+
+                    <dt class="col-sm-4">Status</dt>
+
+                    <dd class="col-sm-8">
+
+                        <span class="badge-status @(Model.Status == "Completed" ? "badge-completed" : "badge-pending")">@Model.Status</span>
+
+                    </dd>
+
+                    <dt class="col-sm-4">Method</dt>
+
+                    <dd class="col-sm-8">@Model.TransferMethod</dd>
+
+                    @if (!string.IsNullOrEmpty(Model.PickupCode))
+
+                    {
+
+                        <dt class="col-sm-4">Pickup code</dt>
+
+                        <dd class="col-sm-8">
+
+                            <span class="fs-4 fw-bold text-primary letter-spacing-1">@Model.PickupCode</span>
+
+                            <div class="form-text">Give this code to the recipient for agent pickup.</div>
+
+                        </dd>
+
+                    }
+
+                    <dt class="col-sm-4">Recipient</dt>
+
+                    <dd class="col-sm-8">@Model.Beneficiary?.FullName</dd>
+
+                    @if (!string.IsNullOrEmpty(Model.Beneficiary?.MobileNumber))
+
+                    {
+
+                        <dt class="col-sm-4">Mobile</dt>
+
+                        <dd class="col-sm-8">@Model.Beneficiary.MobileNumber</dd>
+
+                    }
+
+                    <dt class="col-sm-4">Date</dt>
+
+                    <dd class="col-sm-8">@Model.CreatedAt.ToString("f")</dd>
+
+                </dl>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-6">
+
+        @if (Model.Receipt != null)
+
+        {
+
+            <div class="receipt-box">
+
+                <div class="text-center mb-3">
+
+                    <i class="fa fa-receipt fa-2x text-primary"></i>
+
+                    <h4 class="mt-2">Receipt</h4>
+
+                </div>
+
+                <p><strong>Receipt #:</strong> @Model.Receipt.ReceiptNumber</p>
+
+                <p><strong>Transfer Ref:</strong> @Model.Reference</p>
+
+                @if (!string.IsNullOrEmpty(Model.PickupCode))
+
+                {
+
+                    <p><strong>Pickup code:</strong> @Model.PickupCode</p>
+
+                }
+
+                <p><strong>Total:</strong> @((Model.Amount + Model.Fee).ToString("N2")) @currency</p>
+
+                <div class="text-center mt-3">
+
+                    <a asp-controller="Receipt" asp-action="Details" asp-route-transferId="@Model.Id" class="btn btn-opa">
+
+                        View Full Receipt
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        }
+
+    </div>
+
+</div>
+
+
+
+<a asp-action="Index" class="btn btn-opa-outline mt-3"><i class="fa fa-arrow-left me-1"></i> Back to Transfers</a>
+
+

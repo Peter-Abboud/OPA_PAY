@@ -1,0 +1,67 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="page-header">
+    <h1>Admin Dashboard</h1>
+    <p>Platform overview and management</p>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Total Accounts</div>
+            <div class="stat-value">@ViewBag.TotalAccounts</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Total Transfers</div>
+            <div class="stat-value">@ViewBag.TotalTransfers</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Transfer Volume</div>
+            <div class="stat-value">@(((decimal)ViewBag.TotalTransferVolume).ToString("N0"))</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Pending Agents</div>
+            <div class="stat-value text-warning">@ViewBag.PendingAgents</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Top-Ups (pending)</div>
+            <div class="stat-value text-warning">@ViewBag.PendingFundRequests</div>
+            <small class="text-muted">@ViewBag.TotalFundRequests total</small>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-auto"><a asp-action="FundRequests" class="btn btn-opa"><i class="fa fa-hand-holding-dollar me-1"></i> All Top-Ups</a></div>
+    <div class="col-auto"><a asp-action="Agents" class="btn btn-opa-outline"><i class="fa fa-user-check me-1"></i> Manage Agents</a></div>
+    <div class="col-auto"><a asp-controller="Currency" asp-action="Index" class="btn btn-opa-outline"><i class="fa fa-coins me-1"></i> Currencies</a></div>
+    <div class="col-auto"><a asp-controller="Commission" asp-action="Index" class="btn btn-opa-outline"><i class="fa fa-percent me-1"></i> Commissions</a></div>
+</div>
+
+<div class="opa-card">
+    <div class="opa-card-header">Latest Transactions</div>
+    <table class="table table-opa mb-0">
+        <thead><tr><th>ID</th><th>Amount</th><th>Type</th><th>Date</th></tr></thead>
+        <tbody>
+            @foreach (var item in ViewBag.LatestTransactions)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Amount.ToString("N2")</td>
+                    <td>@item.Type</td>
+                    <td class="text-muted small">@item.CreatedAt.ToString("dd MMM yyyy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,49 @@
+﻿@model List<OPA_Pay.Models.Transfer>
+
+<h2>Admin Dashboard</h2>
+
+<div class="row">
+    <div class="col">
+        <div class="card p-3">
+            <h4>Users</h4>
+            <p>@ViewBag.Users</p>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card p-3">
+            <h4>Transfers</h4>
+            <p>@ViewBag.Transfers</p>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card p-3">
+            <h4>Total Volume</h4>
+            <p>@ViewBag.TotalVolume $</p>
+        </div>
+    </div>
+</div>
+
+<hr />
+
+<h3>Latest Transfers</h3>
+
+<table class="table table-dark">
+    <tr>
+        <th>Id</th>
+        <th>Amount</th>
+        <th>Fee</th>
+        <th>Status</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.Amount</td>
+            <td>@item.Fee</td>
+            <td>@item.Status</td>
+        </tr>
+    }
+</table>

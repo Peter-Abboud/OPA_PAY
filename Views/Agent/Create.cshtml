@@ -1,0 +1,42 @@
+﻿@model OPA_Pay.Models.Agent
+
+<h2 class="mb-4 text-success">
+    Create Agent
+</h2>
+
+<form method="post"
+      class="shadow p-4 rounded bg-light">
+
+    <div class="mb-3">
+        <label>Office Name</label>
+
+        <input asp-for="OfficeName"
+               class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>City</label>
+
+        <input asp-for="City"
+               class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Latitude</label>
+
+        <input asp-for="Latitude"
+               class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Longitude</label>
+
+        <input asp-for="Longitude"
+               class="form-control" />
+    </div>
+
+    <button class="btn btn-success w-100">
+        Create
+    </button>
+
+</form>

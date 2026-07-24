@@ -1,0 +1,58 @@
+@model IEnumerable<OPA_Pay.Models.Receipt>
+@{ ViewData["Title"] = "Receipts"; }
+
+<div class="page-header">
+    <h1>Receipts</h1>
+    <p>Your transfer receipts (newest first)</p>
+</div>
+
+<div class="opa-card">
+    <div class="table-responsive">
+        <table class="table table-opa mb-0">
+            <thead>
+                <tr>
+                    <th>Receipt #</th>
+                    <th>Transfer Ref</th>
+                    <th>Recipient</th>
+                    <th>Amount</th>
+                    <th>Fee</th>
+                    <th>Currency</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    var t = r.Transfer;
+                    <tr>
+                        <td><code class="small">@r.ReceiptNumber</code></td>
+                        <td><code class="small">@(t?.Reference ?? "—")</code></td>
+                        <td>@(t?.Beneficiary?.FullName ?? "—")</td>
+                        <td class="fw-semibold">@(t?.Amount.ToString("N2") ?? "—")</td>
+                        <td>@(t?.Fee.ToString("N2") ?? "—")</td>
+                        <td>@(t?.Account?.Currency?.Code ?? "—")</td>
+                        <td>
+                            @if (t != null)
+                            {
+                                <span class="badge-status @(t.Status == "Completed" ? "badge-completed" : "badge-pending")">@t.Status</span>
+                            }
+                        </td>
+                        <td class="text-muted small">@r.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
+                        <td>
+                            @if (t != null)
+                            {
+                                <a asp-action="Details" asp-route-transferId="@r.TransferId" class="btn btn-sm btn-outline-primary">View</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (!Model.Any())
+        {
+            <p class="text-muted text-center p-4 mb-0">No receipts yet. Complete a transfer to generate one.</p>
+        }
+    </div>
+</div>

@@ -1,0 +1,14 @@
+﻿@model OPA_Pay.Models.Account
+
+<h2>Edit Account</h2>
+
+<form method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label>Balance</label>
+        <input asp-for="Balance" class="form-control" />
+    </div>
+
+    <button class="btn btn-primary">Update</button>
+</form>

@@ -1,0 +1,50 @@
+﻿@model IEnumerable<OPA_Pay.Models.Transfer>
+@{ ViewData["Title"] = "Transfers"; }
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1>Transfers</h1>
+        <p>Your transfer history</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Create" class="btn btn-opa"><i class="fa fa-plus me-1"></i> New Transfer</a>
+        <a asp-action="Mobile" class="btn btn-opa-outline"><i class="fa fa-mobile me-1"></i> Mobile</a>
+    </div>
+</div>
+
+<div class="opa-card">
+    <div class="table-responsive">
+        <table class="table table-opa mb-0">
+            <thead>
+                <tr>
+                    <th>Reference</th>
+                    <th>Beneficiary</th>
+                    <th>Amount</th>
+                    <th>Fee</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model)
+                {
+                    var badgeClass = t.Status == "Completed" ? "badge-completed" : "badge-pending";
+                    <tr>
+                        <td><code class="small">@t.Reference</code></td>
+                        <td>@t.Beneficiary?.FullName</td>
+                        <td class="fw-semibold">@t.Amount.ToString("N2")</td>
+                        <td>@t.Fee.ToString("N2") @(t.Account?.Currency?.Code)</td>
+                        <td><span class="badge bg-secondary">@t.TransferMethod</span></td>
+                        <td><span class="badge-status @badgeClass">@t.Status</span></td>
+                        <td class="text-muted small">@t.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@t.Id" class="btn btn-sm btn-outline-primary">View</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

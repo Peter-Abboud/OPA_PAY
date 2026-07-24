@@ -1,0 +1,297 @@
+@model OPA_Pay.ViewModels.MobileTransferViewModel
+
+@{ ViewData["Title"] = "Mobile Transfer"; }
+
+
+
+<div class="page-header">
+
+    <h1>Mobile Transfer</h1>
+
+    <p>Send cash for pickup at any approved OPA Pay agent office</p>
+
+</div>
+
+
+
+@if (ViewBag.NoAccounts == true)
+
+{
+
+    <div class="alert alert-warning alert-opa">
+
+        You need a wallet before sending. Log out and log in to restore USD, EUR, and LBP wallets.
+
+    </div>
+
+}
+
+
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-7">
+
+        <div class="opa-card">
+
+            <div class="opa-card-header">
+
+                <i class="fa fa-mobile-screen me-2"></i> Cash Pickup Transfer
+
+            </div>
+
+            <div class="opa-card-body">
+
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                <form method="post" asp-action="Mobile" id="mobileTransferForm">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">From Wallet</label>
+
+                        <select asp-for="AccountId" class="form-select" asp-items="ViewBag.Accounts" required id="mobileAccountId">
+
+                            <option value="">-- Select wallet --</option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    @if (ViewBag.HasSavedRecipients == true)
+
+                    {
+
+                        <div class="mb-3">
+
+                            <label class="form-label fw-semibold">Saved recipient (optional)</label>
+
+                            <select class="form-select" id="savedRecipientSelect">
+
+                                <option value="">-- Type new or pick saved --</option>
+
+                                @foreach (var item in (SelectList)ViewBag.SavedRecipients!)
+
+                                {
+
+                                    <option value="@item.Value" data-name="@item.Text">@item.Text</option>
+
+                                }
+
+                            </select>
+
+                        </div>
+
+                    }
+
+
+
+                    <div class="mb-3 opa-suggest-wrap">
+
+                        <label class="form-label fw-semibold">Recipient Name</label>
+
+                        <input asp-for="RecipientName" id="mobileRecipientName" class="form-control"
+
+                               autocomplete="off" required placeholder="Full name as on ID" />
+
+                    </div>
+
+                    <div class="mb-3 opa-suggest-wrap">
+
+                        <label class="form-label fw-semibold">Mobile Number</label>
+
+                        <input asp-for="MobileNumber" id="mobileNumber" class="form-control"
+
+                               placeholder="+961 XX XXX XXX" autocomplete="off" required />
+
+                        <div class="form-text">Recipient must show this number and pickup code at the agent.</div>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">Amount</label>
+
+                        <input asp-for="Amount" class="form-control" type="number" step="0.01" min="0.01"
+
+                               required id="mobileAmount" />
+
+                    </div>
+
+
+
+                    <div class="alert alert-light border mb-4" id="feePreview" style="display:none;">
+
+                        <div class="d-flex justify-content-between small">
+
+                            <span>Transfer amount</span>
+
+                            <span id="feeAmount">—</span>
+
+                        </div>
+
+                        <div class="d-flex justify-content-between small text-muted">
+
+                            <span>Fee <span id="feeDetail"></span></span>
+
+                            <span id="feeValue">—</span>
+
+                        </div>
+
+                        <hr class="my-2" />
+
+                        <div class="d-flex justify-content-between fw-semibold">
+
+                            <span>Total debited</span>
+
+                            <span id="feeTotal" class="text-primary">—</span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <button type="submit" class="btn btn-opa w-100 py-2" @(ViewBag.NoAccounts == true ? "disabled" : "")>
+
+                        <i class="fa fa-paper-plane me-1"></i> Send for Agent Pickup
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="opa-card mt-3">
+
+            <div class="opa-card-body small text-muted">
+
+                <strong>How it works:</strong> Funds are debited from your wallet immediately. The recipient visits an agent with their mobile number and the <strong>6-digit pickup code</strong> shown after you submit.
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+@section Scripts {
+
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+
+    <script src="~/js/recipient-lookup.js" asp-append-version="true"></script>
+
+    <script>
+
+        const recipients = @Html.Raw(ViewBag.MobileRecipientsJson ?? "[]");
+
+        OpaRecipientLookup.initMobilePickers(recipients, {
+
+            nameInput: '#mobileRecipientName',
+
+            mobileInput: '#mobileNumber'
+
+        });
+
+        OpaRecipientLookup.initNameLookup({
+
+            nameInput: '#mobileRecipientName',
+
+            mobileInput: '#mobileNumber',
+
+            lookupUrl: '@Url.Action("Lookup", "Beneficiary")'
+
+        });
+
+
+
+        const savedSelect = document.getElementById('savedRecipientSelect');
+
+        if (savedSelect) {
+
+            savedSelect.addEventListener('change', () => {
+
+                const opt = savedSelect.selectedOptions[0];
+
+                if (!opt?.dataset.name) return;
+
+                document.getElementById('mobileRecipientName').value = opt.dataset.name;
+
+                const match = recipients.find(r =>
+
+                    r.fullName && r.fullName.toLowerCase() === opt.dataset.name.toLowerCase());
+
+                if (match?.mobileNumbers?.length)
+
+                    document.getElementById('mobileNumber').value = match.mobileNumbers[0];
+
+            });
+
+        }
+
+
+
+        async function updateFeePreview() {
+
+            const accountId = document.getElementById('mobileAccountId').value;
+
+            const amount = parseFloat(document.getElementById('mobileAmount').value);
+
+            const box = document.getElementById('feePreview');
+
+            if (!accountId || !amount || amount <= 0) {
+
+                box.style.display = 'none';
+
+                return;
+
+            }
+
+            const res = await fetch(`@Url.Action("EstimateFee")?accountId=${accountId}&amount=${amount}`);
+
+            const data = await res.json();
+
+            if (data.error) {
+
+                box.style.display = 'none';
+
+                return;
+
+            }
+
+            document.getElementById('feeAmount').textContent = `${data.amount.toFixed(2)} ${data.currency}`;
+
+            document.getElementById('feeValue').textContent = `${data.fee.toFixed(2)} ${data.currency}`;
+
+            document.getElementById('feeTotal').textContent = `${data.total.toFixed(2)} ${data.currency}`;
+
+            document.getElementById('feeDetail').textContent =
+
+                `(${data.percentage}% + $${data.fixedFeeUsd.toFixed(2)} USD fixed, converted)`;
+
+            box.style.display = 'block';
+
+        }
+
+
+
+        document.getElementById('mobileAccountId')?.addEventListener('change', updateFeePreview);
+
+        document.getElementById('mobileAmount')?.addEventListener('input', updateFeePreview);
+
+    </script>
+
+}
+
+

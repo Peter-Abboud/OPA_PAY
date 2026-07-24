@@ -1,0 +1,409 @@
+@model OPA_Pay.ViewModels.AgentProfileViewModel
+
+@{ ViewData["Title"] = "Agent Profile"; }
+
+
+
+<div class="page-header">
+
+    <h1>Agent Profile</h1>
+
+    <p>Set your branch on the map — coordinates are captured when you confirm the pin</p>
+
+    @if (Model.IsApproved)
+
+    {
+
+        <span class="badge bg-success">Approved</span>
+
+    }
+
+    else
+
+    {
+
+        <span class="badge bg-warning text-dark">Pending admin approval</span>
+
+    }
+
+</div>
+
+
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-8">
+
+        <div class="opa-card">
+
+            <div class="opa-card-body">
+
+                <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+                <form method="post" asp-action="Profile" id="agentProfileForm">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" asp-for="Id" />
+
+                    <input type="hidden" asp-for="Latitude" id="Latitude" />
+
+                    <input type="hidden" asp-for="Longitude" id="Longitude" />
+
+                    <input type="hidden" asp-for="LocationConfirmed" id="LocationConfirmed" value="@(Model.LocationConfirmed ? "true" : "false")" />
+
+
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-semibold">Office Name</label>
+
+                            <input asp-for="OfficeName" class="form-control" />
+
+                            <span asp-validation-for="OfficeName" class="text-danger"></span>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-semibold">City</label>
+
+                            <input asp-for="City" class="form-control" />
+
+                            <span asp-validation-for="City" class="text-danger"></span>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-semibold">Opening Time</label>
+
+                            <input asp-for="OpeningTime" class="form-control" type="time" />
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-semibold">Closing Time</label>
+
+                            <input asp-for="ClosingTime" class="form-control" type="time" />
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="mt-4">
+
+                        <label class="form-label fw-semibold">Branch location</label>
+
+                        <p class="small text-muted mb-2">Click the map to place your office pin, then confirm. Use Edit to move it.</p>
+
+                        <div id="agentLocationMap" class="agent-location-map"></div>
+
+
+
+                        <div class="location-readout mt-3 p-3 rounded border bg-light" id="locationReadout">
+
+                            <div class="row g-2 small">
+
+                                <div class="col-sm-6">
+
+                                    <span class="text-muted">Latitude</span>
+
+                                    <div class="fw-semibold font-monospace" id="readoutLat">@(Model.Latitude != 0 ? Model.Latitude.ToString("F6") : "—")</div>
+
+                                </div>
+
+                                <div class="col-sm-6">
+
+                                    <span class="text-muted">Longitude</span>
+
+                                    <div class="fw-semibold font-monospace" id="readoutLng">@(Model.Longitude != 0 ? Model.Longitude.ToString("F6") : "—")</div>
+
+                                </div>
+
+                            </div>
+
+                            <div id="locationStatus" class="mt-2 small text-muted">
+
+                                @(Model.LocationConfirmed ? "Location confirmed." : "Place a pin on the map and confirm.")
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="d-flex gap-2 mt-3 flex-wrap">
+
+                            <button type="button" class="btn btn-opa btn-sm" id="btnConfirmLocation" disabled>
+
+                                <i class="fa fa-check me-1"></i> Confirm location
+
+                            </button>
+
+                            <button type="button" class="btn btn-opa-outline btn-sm" id="btnEditLocation" style="display:none;">
+
+                                <i class="fa fa-pen me-1"></i> Edit location
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <button type="submit" class="btn btn-opa mt-4" id="btnSaveProfile">
+
+                        <i class="fa fa-save me-1"></i> Save Profile
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+@section Scripts {
+
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+
+        (function () {
+
+            const latInput = document.getElementById('Latitude');
+
+            const lngInput = document.getElementById('Longitude');
+
+            const confirmedInput = document.getElementById('LocationConfirmed');
+
+            const btnConfirm = document.getElementById('btnConfirmLocation');
+
+            const btnEdit = document.getElementById('btnEditLocation');
+
+            const readoutLat = document.getElementById('readoutLat');
+
+            const readoutLng = document.getElementById('readoutLng');
+
+            const statusEl = document.getElementById('locationStatus');
+
+            const form = document.getElementById('agentProfileForm');
+
+
+
+            let lat = parseFloat(latInput.value) || 33.8938;
+
+            let lng = parseFloat(lngInput.value) || 35.5018;
+
+            let mapLocked = confirmedInput.value === 'true';
+
+            let marker = null;
+
+
+
+            const map = L.map('agentLocationMap').setView([lat, lng], lat === 33.8938 && lng === 35.5018 ? 10 : 14);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+                maxZoom: 19,
+
+                attribution: '&copy; OpenStreetMap'
+
+            }).addTo(map);
+
+
+
+            function updateReadout() {
+
+                readoutLat.textContent = lat.toFixed(6);
+
+                readoutLng.textContent = lng.toFixed(6);
+
+                latInput.value = lat;
+
+                lngInput.value = lng;
+
+            }
+
+
+
+            function placeMarker(position, fromClick) {
+
+                lat = position[0];
+
+                lng = position[1];
+
+                if (marker) marker.setLatLng(position);
+
+                else marker = L.marker(position, { draggable: !mapLocked }).addTo(map);
+
+                marker.off('dragend');
+
+                if (!mapLocked) {
+
+                    marker.on('dragend', () => {
+
+                        const p = marker.getLatLng();
+
+                        setPosition([p.lat, p.lng], false);
+
+                    });
+
+                }
+
+                updateReadout();
+
+                if (fromClick && !mapLocked) {
+
+                    btnConfirm.disabled = false;
+
+                    statusEl.textContent = 'Pin placed — click Confirm location to lock it.';
+
+                    statusEl.className = 'mt-2 small text-warning';
+
+                }
+
+            }
+
+
+
+            function setPosition(pos, fromClick) {
+
+                placeMarker(pos, fromClick);
+
+            }
+
+
+
+            function lockMap() {
+
+                mapLocked = true;
+
+                confirmedInput.value = 'true';
+
+                map.off('click');
+
+                if (marker) marker.dragging.disable();
+
+                btnConfirm.style.display = 'none';
+
+                btnEdit.style.display = 'inline-block';
+
+                statusEl.textContent = 'Location confirmed. Your branch will appear on the public map after approval.';
+
+                statusEl.className = 'mt-2 small text-success';
+
+            }
+
+
+
+            function unlockMap() {
+
+                mapLocked = false;
+
+                confirmedInput.value = 'false';
+
+                btnConfirm.style.display = 'inline-block';
+
+                btnConfirm.disabled = false;
+
+                btnEdit.style.display = 'none';
+
+                statusEl.textContent = 'Click the map to move your branch pin.';
+
+                statusEl.className = 'mt-2 small text-warning';
+
+                map.on('click', e => setPosition([e.latlng.lat, e.latlng.lng], true));
+
+                if (marker) marker.dragging.enable();
+
+            }
+
+
+
+            map.on('click', e => {
+
+                if (!mapLocked) setPosition([e.latlng.lat, e.latlng.lng], true);
+
+            });
+
+
+
+            btnConfirm.addEventListener('click', () => {
+
+                lockMap();
+
+            });
+
+
+
+            btnEdit.addEventListener('click', () => {
+
+                unlockMap();
+
+            });
+
+
+
+            form.addEventListener('submit', e => {
+
+                if (confirmedInput.value !== 'true') {
+
+                    e.preventDefault();
+
+                    alert('Please place your branch on the map and click Confirm location before saving.');
+
+                }
+
+            });
+
+
+
+            if (latInput.value && lngInput.value && parseFloat(latInput.value) !== 0) {
+
+                setPosition([lat, lng], false);
+
+                if (mapLocked) lockMap();
+
+                else {
+
+                    btnConfirm.disabled = false;
+
+                    statusEl.textContent = 'Pin placed — click Confirm location to lock it.';
+
+                }
+
+            } else {
+
+                statusEl.textContent = 'Click the map to place your branch.';
+
+            }
+
+
+
+            setTimeout(() => map.invalidateSize(), 200);
+
+        })();
+
+    </script>
+
+}
+
+

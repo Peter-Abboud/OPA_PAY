@@ -1,0 +1,41 @@
+@model OPA_Pay.Models.Review
+@{ ViewData["Title"] = "Leave Review"; }
+
+<div class="page-header">
+    <h1>Review @ViewBag.AgentName</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-5">
+        <div class="opa-card">
+            <div class="opa-card-body">
+                <div asp-validation-summary="All" class="alert alert-danger"></div>
+                <form method="post" asp-action="Create">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="AgentProfileId" />
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Rating (1-5)</label>
+                        <select asp-for="Rating" class="form-select">
+                            <option value="5">5 — Excellent</option>
+                            <option value="4">4 — Good</option>
+                            <option value="3">3 — Average</option>
+                            <option value="2">2 — Poor</option>
+                            <option value="1">1 — Bad</option>
+                        </select>
+                        <span asp-validation-for="Rating" class="text-danger"></span>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Comment</label>
+                        <textarea asp-for="Comment" class="form-control" rows="4" required></textarea>
+                        <span asp-validation-for="Comment" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="btn btn-opa w-100">Submit Review</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

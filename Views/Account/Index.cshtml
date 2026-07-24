@@ -1,0 +1,52 @@
+﻿@model IEnumerable<OPA_Pay.Models.Account>
+@{ ViewData["Title"] = "Accounts"; }
+
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+        <h1>My Accounts</h1>
+        <p>Each currency has its own wallet — switch using the top bar dropdown</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Exchange" class="btn btn-opa-outline"><i class="fa fa-right-left me-1"></i> Exchange</a>
+        @if (ViewBag.CanCreateWallet != false)
+        {
+            <a asp-action="Create" class="btn btn-opa"><i class="fa fa-plus me-1"></i> New Wallet</a>
+        }
+    </div>
+</div>
+
+<div class="row g-4">
+    @foreach (var item in Model)
+    {
+        var isActive = Context.Session.GetInt32("ActiveAccountId") == item.Id;
+        <div class="col-md-4">
+            <div class="stat-card @(isActive ? "border border-primary border-2" : "")">
+                @if (isActive) { <span class="badge bg-primary mb-2">Active</span> }
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="badge bg-secondary">@item.Currency?.Code</span>
+                    <code class="small text-muted">@item.AccountNumber</code>
+                </div>
+                <div class="stat-value text-primary mb-1">@item.Balance.ToString("N2")</div>
+                <div class="stat-label mb-3">@item.Currency?.Name</div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <form asp-action="SwitchActive" method="post" class="flex-grow-1">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="accountId" value="@item.Id" />
+                        <button type="submit" class="btn btn-sm @(isActive ? "btn-primary" : "btn-outline-primary") w-100">
+                            @(isActive ? "Selected" : "Use This Wallet")
+                        </button>
+                    </form>
+                    <a asp-controller="Stripe" asp-action="Deposit" class="btn btn-sm btn-opa">Add Funds</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <p class="text-muted">No wallets yet.</p>
+        <a asp-action="Create" class="btn btn-opa">Create Your First Wallet</a>
+    </div>
+}

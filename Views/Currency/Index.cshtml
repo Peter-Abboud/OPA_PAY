@@ -1,0 +1,27 @@
+﻿@model IEnumerable<OPA_Pay.Models.Currency>
+@{ ViewData["Title"] = "Currencies"; }
+
+<div class="page-header d-flex justify-content-between">
+    <div>
+        <h1>Currencies</h1>
+        <p>Manage supported currencies and exchange rates</p>
+    </div>
+    <a asp-action="Create" class="btn btn-opa"><i class="fa fa-plus me-1"></i> Add Currency</a>
+</div>
+
+<div class="opa-card">
+    <table class="table table-opa mb-0">
+        <thead><tr><th>Code</th><th>Name</th><th>Exchange Rate</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var c in Model)
+            {
+                <tr>
+                    <td class="fw-bold">@c.Code</td>
+                    <td>@c.Name</td>
+                    <td>@c.ExchangeRate.ToString("N4")</td>
+                    <td><a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-outline-primary">Edit</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,123 @@
+@model IEnumerable<OPA_Pay.Models.Transfer>
+
+@{ ViewData["Title"] = "Cash Operations"; }
+
+
+
+<div class="page-header">
+
+    <h1>Cash Operations</h1>
+
+    <p>Release cash to recipients — verify pickup code and mobile number</p>
+
+</div>
+
+
+
+@if (TempData["Success"] != null)
+
+{
+
+    <div class="alert alert-success alert-opa">@TempData["Success"]</div>
+
+}
+
+@if (TempData["Error"] != null)
+
+{
+
+    <div class="alert alert-danger alert-opa">@TempData["Error"]</div>
+
+}
+
+
+
+<div class="opa-card">
+
+    <div class="table-responsive">
+
+        <table class="table table-opa mb-0">
+
+            <thead>
+
+                <tr>
+
+                    <th>Pickup Code</th>
+
+                    <th>Reference</th>
+
+                    <th>Recipient</th>
+
+                    <th>Mobile</th>
+
+                    <th>Amount</th>
+
+                    <th>Currency</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @foreach (var t in Model)
+
+                {
+
+                    <tr>
+
+                        <td><span class="fw-bold text-primary fs-5">@t.PickupCode</span></td>
+
+                        <td><code class="small">@t.Reference</code></td>
+
+                        <td>@t.Beneficiary?.FullName</td>
+
+                        <td>@t.Beneficiary?.MobileNumber</td>
+
+                        <td class="fw-semibold">@t.Amount.ToString("N2")</td>
+
+                        <td><span class="badge bg-secondary">@t.Account?.Currency?.Code</span></td>
+
+                        <td>
+
+                            <form asp-action="CompletePickup" method="post" class="d-inline"
+
+                                  onsubmit="return confirm('Confirm cash was given to @t.Beneficiary?.FullName?');">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden" name="transferId" value="@t.Id" />
+
+                                <button class="btn btn-sm btn-opa">
+
+                                    <i class="fa fa-check me-1"></i> Complete Pickup
+
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                }
+
+            </tbody>
+
+        </table>
+
+        @if (!Model.Any())
+
+        {
+
+            <p class="text-muted text-center p-4 mb-0">No pending pickups at this time.</p>
+
+        }
+
+    </div>
+
+</div>
+
+

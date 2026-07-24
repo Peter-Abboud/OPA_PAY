@@ -1,0 +1,28 @@
+﻿@model OPA_Pay.Models.Agent
+
+<h2 class="mb-4 text-danger">
+    Delete Agent
+</h2>
+
+<div class="alert alert-danger">
+
+    Are you sure you want to delete
+    <strong>@Model.OfficeName</strong> ?
+
+</div>
+
+<form method="post">
+
+    <input type="hidden"
+           asp-for="Id" />
+
+    <button class="btn btn-danger">
+        Delete
+    </button>
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        Cancel
+    </a>
+
+</form>

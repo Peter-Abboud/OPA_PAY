@@ -1,0 +1,209 @@
+﻿@model OPA_Pay.ViewModels.DashboardViewModel
+
+@{ ViewData["Title"] = "Dashboard"; }
+
+
+
+<div class="page-header">
+
+    <h1>Dashboard</h1>
+
+    <p>Your wallets and transfer activity — balances are shown per currency</p>
+
+</div>
+
+
+
+<div class="row g-4 mb-4">
+
+    @foreach (var wallet in Model.WalletBalances)
+
+    {
+
+        <div class="col-md-4">
+
+            <div class="stat-card @(wallet.IsActive ? "border border-primary border-2" : "")">
+
+                @if (wallet.IsActive)
+
+                {
+
+                    <span class="badge bg-primary mb-2">Active wallet</span>
+
+                }
+
+                <div class="d-flex justify-content-between align-items-start mb-2">
+
+                    <span class="badge bg-secondary">@wallet.CurrencyCode</span>
+
+                    <code class="small text-muted">@wallet.AccountNumber</code>
+
+                </div>
+
+                <div class="stat-value text-primary">@wallet.Balance.ToString("N2")</div>
+
+                <div class="stat-label">@wallet.CurrencyName</div>
+
+            </div>
+
+        </div>
+
+    }
+
+</div>
+
+
+
+<div class="row g-4 mb-4">
+
+    <div class="col-md-4">
+
+        <div class="stat-card">
+
+            <div class="stat-label">Wallets</div>
+
+            <div class="stat-value">@Model.AccountCount</div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="stat-card">
+
+            <div class="stat-label">Transfers</div>
+
+            <div class="stat-value">@Model.TransferCount</div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="stat-card">
+
+            <div class="stat-label">Unread Alerts</div>
+
+            <div class="stat-value text-danger">@Model.UnreadNotifications</div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="row g-4">
+
+    <div class="col-lg-8">
+
+        <div class="opa-card">
+
+            <div class="opa-card-header">Transfer Volume by Month</div>
+
+            <div class="opa-card-body">
+
+                <canvas id="transferChart" height="120"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="opa-card">
+
+            <div class="opa-card-header">Quick Actions</div>
+
+            <div class="opa-card-body d-grid gap-2">
+
+                <a asp-controller="Transfer" asp-action="Create" class="btn btn-opa">
+
+                    <i class="fa fa-paper-plane me-2"></i> Send Money
+
+                </a>
+
+                <a asp-controller="Transfer" asp-action="Mobile" class="btn btn-opa-outline">
+
+                    <i class="fa fa-mobile me-2"></i> Mobile Transfer
+
+                </a>
+
+                <a asp-controller="Stripe" asp-action="Deposit" class="btn btn-opa-outline">
+
+                    <i class="fa fa-credit-card me-2"></i> Add Funds
+
+                </a>
+
+                <a asp-controller="Map" asp-action="Index" class="btn btn-opa-outline">
+
+                    <i class="fa fa-map me-2"></i> Find Agents
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+@section Scripts {
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+
+        const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyTransfers.Select(m => m.Month)));
+
+        const data = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyTransfers.Select(m => m.Amount)));
+
+
+
+        new Chart(document.getElementById('transferChart'), {
+
+            type: 'bar',
+
+            data: {
+
+                labels: labels.length ? labels : ['No data yet'],
+
+                datasets: [{
+
+                    label: 'Transfer Amount',
+
+                    data: data.length ? data : [0],
+
+                    backgroundColor: 'rgba(37, 99, 235, 0.7)',
+
+                    borderRadius: 6
+
+                }]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                plugins: { legend: { display: false } },
+
+                scales: { y: { beginAtZero: true } }
+
+            }
+
+        });
+
+    </script>
+
+}
+
+

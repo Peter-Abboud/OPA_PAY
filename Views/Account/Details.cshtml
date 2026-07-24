@@ -1,0 +1,9 @@
+﻿@model OPA_Pay.Models.Account
+
+<h2>Account Details</h2>
+
+<ul class="list-group">
+    <li class="list-group-item">Balance: @Model.Balance</li>
+    <li class="list-group-item">Currency: @Model.Currency?.Code</li>
+    <li class="list-group-item">User: @Model.User?.FullName</li>
+</ul>

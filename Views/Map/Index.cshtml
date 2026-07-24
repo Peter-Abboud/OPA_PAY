@@ -1,0 +1,90 @@
+@model IEnumerable<OPA_Pay.Controllers.MapController.AgentMapItem>
+@{ ViewData["Title"] = "Agent Map"; }
+
+<div class="page-header">
+    <h1>Agent Locations</h1>
+    <p>All registered agent offices — green = approved, orange = pending approval</p>
+</div>
+
+<div class="opa-card mb-4">
+    <div class="opa-card-body p-0">
+        <div id="map"></div>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info alert-opa">
+        No agents on the map yet. Agents appear here when they save their profile (office name &amp; location).
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var agent in Model)
+        {
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h6 class="fw-bold mb-1">@agent.OfficeName</h6>
+                    <p class="text-muted small mb-2"><i class="fa fa-location-dot me-1"></i>@agent.City</p>
+                    @if (agent.IsApproved)
+                    {
+                        <span class="badge bg-success mb-2">Approved</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark mb-2">Pending approval</span>
+                    }
+                    <span class="badge-status @(agent.IsOpen ? "badge-completed" : "badge-pending") d-block" style="width:fit-content">
+                        @(agent.IsOpen ? "Open" : "Closed")
+                    </span>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@section Scripts {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const agents = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(a => new {
+            officeName = a.OfficeName,
+            city = a.City,
+            lat = a.Latitude,
+            lng = a.Longitude,
+            isOpen = a.IsOpen,
+            isApproved = a.IsApproved,
+            hours = a.OpeningTime + " - " + a.ClosingTime
+        })));
+
+        const defaultCenter = [33.8938, 35.5018];
+        const map = L.map('map').setView(defaultCenter, 10);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+
+        const bounds = [];
+        agents.forEach(a => {
+            const color = a.isApproved ? '#22c55e' : '#f59e0b';
+            const icon = L.divIcon({
+                className: 'custom-marker',
+                html: `<div style="background:${color};width:14px;height:14px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.3)"></div>`,
+                iconSize: [14, 14],
+                iconAnchor: [7, 7]
+            });
+            const marker = L.marker([a.lat, a.lng], { icon }).addTo(map);
+            const status = a.isApproved ? 'Approved' : 'Pending approval';
+            marker.bindPopup(
+                `<strong>${a.officeName}</strong><br>${a.city}<br>${a.hours}<br>${status}<br>${a.isOpen ? 'Open' : 'Closed'}`
+            );
+            bounds.push([a.lat, a.lng]);
+        });
+
+        if (bounds.length > 0) {
+            map.fitBounds(bounds, { padding: [40, 40] });
+        }
+    </script>
+}

@@ -1,0 +1,143 @@
+﻿@model OPA_Pay.ViewModels.BeneficiaryEditViewModel
+
+@{ ViewData["Title"] = "Edit Beneficiary"; }
+
+
+
+<div class="page-header">
+
+    <h1>Edit Beneficiary</h1>
+
+</div>
+
+
+
+@if (TempData["Error"] != null)
+
+{
+
+    <div class="alert alert-danger alert-opa">@TempData["Error"]</div>
+
+}
+
+
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-6">
+
+        <div class="opa-card">
+
+            <div class="opa-card-body">
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <form method="post" asp-action="Edit">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="mb-3">
+
+                        <label asp-for="FullName" class="form-label fw-semibold"></label>
+
+                        <input asp-for="FullName" class="form-control" />
+
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label asp-for="AccountNumber" class="form-label fw-semibold"></label>
+
+                        <input asp-for="AccountNumber" class="form-control" />
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label asp-for="MobileNumber" class="form-label fw-semibold">Mobile Number (optional)</label>
+
+                        <input asp-for="MobileNumber" class="form-control" placeholder="Leave empty if not needed" />
+
+                        <span asp-validation-for="MobileNumber" class="text-danger"></span>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label asp-for="BankName" class="form-label fw-semibold"></label>
+
+                        <input asp-for="BankName" class="form-control" />
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label asp-for="Country" class="form-label fw-semibold"></label>
+
+                        <input asp-for="Country" class="form-control" />
+
+                    </div>
+
+                    <button type="submit" class="btn btn-opa w-100">Save Changes</button>
+
+                    <a asp-action="Index" class="btn btn-opa-outline w-100 mt-2">Cancel</a>
+
+                </form>
+
+
+
+                <hr class="my-4" />
+
+
+
+                <div class="border border-danger rounded p-3 bg-danger bg-opacity-10">
+
+                    <h6 class="text-danger fw-semibold mb-2">
+
+                        <i class="fa fa-trash me-1"></i> Delete Beneficiary
+
+                    </h6>
+
+                    <p class="small text-muted mb-3">
+
+                        Permanently remove this recipient. Not allowed if they appear on past transfers.
+
+                    </p>
+
+                    <form method="post" asp-action="Delete" asp-route-id="@Model.Id"
+
+                          onsubmit="return confirm('Delete this beneficiary permanently?');">
+
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit" class="btn btn-outline-danger w-100">
+
+                            <i class="fa fa-trash me-1"></i> Delete Beneficiary
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+@section Scripts {
+
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+
+}
+
+

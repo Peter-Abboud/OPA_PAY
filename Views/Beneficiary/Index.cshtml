@@ -1,0 +1,43 @@
+﻿@model IEnumerable<OPA_Pay.Models.Beneficiary>
+@{ ViewData["Title"] = "Beneficiaries"; }
+
+<div class="page-header d-flex justify-content-between">
+    <div>
+        <h1>Beneficiaries</h1>
+        <p>Your saved recipients</p>
+    </div>
+    <a asp-action="Create" class="btn btn-opa"><i class="fa fa-plus me-1"></i> Add Beneficiary</a>
+</div>
+
+<div class="opa-card">
+    <div class="table-responsive">
+        <table class="table table-opa mb-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Account #</th>
+                    <th>Mobile</th>
+                    <th>Bank</th>
+                    <th>Country</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@item.FullName</td>
+                        <td><code class="small">@item.AccountNumber</code></td>
+                        <td>@(string.IsNullOrEmpty(item.MobileNumber) ? "—" : item.MobileNumber)</td>
+                        <td>@item.BankName</td>
+                        <td>@item.Country</td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">View</a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

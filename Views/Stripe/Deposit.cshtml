@@ -1,0 +1,133 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@{ ViewData["Title"] = "Add Funds"; }
+
+<div class="page-header">
+    <h1>Add Funds</h1>
+    <p>Top up any of your USD, EUR, or LBP wallets</p>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-opa">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-opa">@TempData["Error"]</div>
+}
+
+@if (ViewBag.NoAccounts == true)
+{
+    <div class="alert alert-warning alert-opa">
+        No wallets found. Log out and log in again, or contact support.
+    </div>
+}
+
+<div class="row g-4 justify-content-center">
+    <div class="col-lg-6">
+        <div class="opa-card deposit-card">
+            <div class="opa-card-header deposit-card-header">
+                <i class="fa fa-wallet me-2"></i> Add Funds to Wallet
+            </div>
+            <div class="opa-card-body">
+                <p class="small text-muted mb-3">
+                    Choose a wallet and amount. A partner agent must approve your request before funds are credited.
+                </p>
+                <form method="post" asp-action="RequestFunds" asp-controller="Stripe">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3 hover-select-wrap">
+                        <label class="form-label fw-semibold">Wallet</label>
+                        <select name="accountId" class="form-select" asp-items="ViewBag.Accounts" required
+                                title="Select USD, EUR, or LBP wallet"></select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Amount</label>
+                        <input type="number" name="amount" id="depositAmount" class="form-control"
+                               step="0.01" min="0.01" value="100" required />
+                        <div class="d-flex gap-2 mt-2 flex-wrap">
+                            <button type="button" class="btn btn-sm quick-amt-btn quick-amt" data-amt="100">100</button>
+                            <button type="button" class="btn btn-sm quick-amt-btn quick-amt" data-amt="1000">1,000</button>
+                            <button type="button" class="btn btn-sm quick-amt-btn quick-amt" data-amt="1000000">1,000,000</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-deposit w-100 py-2" @(ViewBag.NoAccounts == true ? "disabled" : "")>
+                        <i class="fa fa-plus-circle me-1"></i> Submit Deposit Request
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="opa-card mt-4">
+            <div class="opa-card-body py-3">
+                <div class="d-flex gap-3 align-items-start">
+                    <div class="deposit-info-icon">
+                        <i class="fa fa-shield-halved"></i>
+                    </div>
+                    <div class="small text-muted">
+                        <strong class="text-dark">Secure processing</strong><br />
+                        Partner agents are notified instantly. An approved agent credits your wallet after review.
+                        Transfers require sufficient funds — overdraft is not available.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="opa-card">
+            <div class="opa-card-header">
+                <i class="fa fa-clock me-2 text-warning"></i> Pending Deposits
+            </div>
+            <div class="opa-card-body">
+                @{
+                    var pending = ViewBag.PendingRequests as IEnumerable<OPA_Pay.Models.FundRequest>;
+                }
+                @if (pending == null || !pending.Any())
+                {
+                    <div class="text-center text-muted py-4">
+                        <i class="fa fa-inbox fa-2x mb-2 opacity-50"></i>
+                        <p class="small mb-0">No pending deposit requests.</p>
+                    </div>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush deposit-pending-list">
+                        @foreach (var req in pending)
+                        {
+                            <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                <span>
+                                    <span class="deposit-amount">@req.Amount.ToString("N2")</span>
+                                    <span class="badge bg-secondary ms-1">@req.Account?.Currency?.Code</span>
+                                    <br />
+                                    <small class="text-muted">@req.Account?.AccountNumber</small>
+                                </span>
+                                <span class="badge badge-pending">Awaiting approval</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+
+        <div class="stat-card mt-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon deposit-stat-icon">
+                    <i class="fa fa-coins"></i>
+                </div>
+                <div>
+                    <div class="stat-label mb-0">Supported currencies</div>
+                    <div class="fw-semibold">USD · EUR · LBP</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.quick-amt').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('depositAmount').value = btn.dataset.amt;
+            });
+        });
+    </script>
+}

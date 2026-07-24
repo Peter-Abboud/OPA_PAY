@@ -1,0 +1,63 @@
+﻿@model OPA_Pay.ViewModels.BeneficiaryCreateViewModel
+@{ ViewData["Title"] = "Add Beneficiary"; }
+
+<div class="page-header">
+    <h1>Add Beneficiary</h1>
+    <p>Type a full name to see OPA accounts, banks, and countries</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="opa-card">
+            <div class="opa-card-body">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <form method="post" asp-action="Create">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3 opa-suggest-wrap">
+                        <label asp-for="FullName" class="form-label fw-semibold"></label>
+                        <input asp-for="FullName" id="beneficiaryFullName" class="form-control"
+                               placeholder="Start typing a name…" autocomplete="off" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                        <div class="form-text">Hover or type — suggestions show OPA accounts, bank &amp; country.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="AccountNumber" class="form-label fw-semibold"></label>
+                        <input asp-for="AccountNumber" id="beneficiaryAccount" class="form-control"
+                               placeholder="Optional — OPA or bank account" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MobileNumber" class="form-label fw-semibold"></label>
+                        <input asp-for="MobileNumber" id="beneficiaryMobile" class="form-control"
+                               placeholder="Optional" />
+                        <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                        <div class="form-text">Leave blank if not needed.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="BankName" class="form-label fw-semibold"></label>
+                        <input asp-for="BankName" id="beneficiaryBank" class="form-control" placeholder="Optional" />
+                    </div>
+                    <div class="mb-4">
+                        <label asp-for="Country" class="form-label fw-semibold"></label>
+                        <input asp-for="Country" id="beneficiaryCountry" class="form-control" placeholder="Optional" />
+                    </div>
+                    <button type="submit" class="btn btn-opa w-100">Save Beneficiary</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script src="~/js/recipient-lookup.js" asp-append-version="true"></script>
+    <script>
+        OpaRecipientLookup.initNameLookup({
+            nameInput: '#beneficiaryFullName',
+            accountInput: '#beneficiaryAccount',
+            bankInput: '#beneficiaryBank',
+            countryInput: '#beneficiaryCountry',
+            mobileInput: '#beneficiaryMobile',
+            lookupUrl: '@Url.Action("Lookup", "Beneficiary")'
+        });
+    </script>
+}

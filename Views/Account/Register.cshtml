@@ -1,0 +1,177 @@
+﻿@model OPA_Pay.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container mt-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-6">
+
+            <div class="card shadow-lg border-0 rounded-4">
+
+                <!-- HEADER -->
+
+                <div class="card-header bg-dark text-white text-center p-4 rounded-top-4">
+
+                    <h2>🚀 Create Your Account</h2>
+
+                    <p class="mb-0">
+                        Join OPA Pay Digital Banking
+                    </p>
+
+                </div>
+
+                <!-- BODY -->
+
+                <div class="card-body p-5">
+
+                    <!-- SHOW ERRORS -->
+
+                    <div asp-validation-summary="All"
+                         class="text-danger mb-3">
+                    </div>
+
+                    <form method="post" asp-action="Register">
+
+                        <!-- FULL NAME -->
+
+                        <div class="mb-4">
+
+                            <label class="form-label fw-bold">
+                                Full Name
+                            </label>
+
+                            <input asp-for="FullName"
+                                   class="form-control form-control-lg"
+                                   placeholder="Enter your full name" />
+
+                            <span asp-validation-for="FullName"
+                                  class="text-danger"></span>
+
+                        </div>
+
+                        <!-- EMAIL -->
+
+                        <div class="mb-4">
+
+                            <label class="form-label fw-bold">
+                                Email Address
+                            </label>
+
+                            <input asp-for="Email"
+                                   class="form-control form-control-lg"
+                                   placeholder="example@email.com" />
+
+                            <span asp-validation-for="Email"
+                                  class="text-danger"></span>
+
+                        </div>
+
+                        <!-- PASSWORD -->
+
+                        <div class="mb-4">
+
+                            <label class="form-label fw-bold">
+                                Password
+                            </label>
+
+                            <input asp-for="Password"
+                                   type="password"
+                                   class="form-control form-control-lg"
+                                   placeholder="Enter password" />
+
+                            <span asp-validation-for="Password"
+                                  class="text-danger"></span>
+
+                        </div>
+
+                        <!-- CONFIRM PASSWORD -->
+
+                        <div class="mb-4">
+
+                            <label class="form-label fw-bold">
+                                Confirm Password
+                            </label>
+
+                            <input asp-for="ConfirmPassword"
+                                   type="password"
+                                   class="form-control form-control-lg"
+                                   placeholder="Confirm password" />
+
+                            <span asp-validation-for="ConfirmPassword"
+                                  class="text-danger"></span>
+
+                        </div>
+
+                        <!-- ROLE -->
+
+                        <div class="mb-4">
+
+                            <label class="form-label fw-bold">
+                                Select Role
+                            </label>
+
+                            <select asp-for="RoleType"
+                                    class="form-select form-select-lg">
+
+                                <option value="Client">Client 👤</option>
+
+                                <option value="Agent">Agent 🏦</option>
+
+                                <option value="Admin">Admin ⚙️</option>
+
+                            </select>
+
+                            <span asp-validation-for="RoleType"
+                                  class="text-danger"></span>
+
+                        </div>
+
+                        <!-- BUTTON -->
+
+                        <div class="d-grid">
+
+                            <button type="submit"
+                                    class="btn btn-success btn-lg rounded-3">
+
+                                ✅ Register
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                    <!-- LOGIN LINK -->
+
+                    <div class="text-center mt-4">
+
+                        <a asp-controller="Auth"
+                           asp-action="Login"
+                           class="text-decoration-none">
+
+                            Already have an account? Login
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

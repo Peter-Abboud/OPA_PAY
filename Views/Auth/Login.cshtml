@@ -1,0 +1,37 @@
+﻿@model OPA_Pay.ViewModels.LoginViewModel
+@{ ViewData["Title"] = "Login"; }
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-card-header">
+            <i class="fa fa-lock fa-2x mb-3"></i>
+            <h2 class="mb-0">Welcome Back</h2>
+            <p class="mb-0 opacity-75 small">Sign in to your OPA Pay account</p>
+        </div>
+        <div class="auth-card-body">
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+            <form method="post">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Email</label>
+                    <input asp-for="Email" class="form-control" placeholder="you@example.com" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Password</label>
+                    <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" />
+                </div>
+                <div class="mb-4 form-check">
+                    <input asp-for="RememberMe" class="form-check-input" />
+                    <label class="form-check-label" asp-for="RememberMe">Remember me</label>
+                </div>
+                <button type="submit" class="btn btn-opa w-100 py-2">Sign In</button>
+            </form>
+            <p class="text-center mt-4 mb-0 text-muted small">
+                Don't have an account?
+                <a asp-action="Register" class="text-decoration-none">Register here</a>
+            </p>
+            <p class="text-center mt-2 mb-0 text-muted small">
+                <strong>Admin:</strong> admin@opa.com / Admin123!
+            </p>
+        </div>
+    </div>
+</div>

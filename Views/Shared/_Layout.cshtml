@@ -1,0 +1,150 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - OPA Pay</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+</head>
+<body>
+    <div class="d-flex">
+        <div class="sidebar p-3">
+            <div class="text-center mb-4 pt-2">
+                <div class="sidebar-brand">OPA Pay</div>
+                <small class="text-secondary">Digital Banking</small>
+            </div>
+
+            <a asp-controller="Home" asp-action="Index">
+                <i class="fa fa-home"></i> Home
+            </a>
+
+            @if (User.Identity!.IsAuthenticated)
+            {
+                <div class="sidebar-section">Banking</div>
+
+                <a asp-controller="Dashboard" asp-action="Index">
+                    <i class="fa fa-chart-line"></i> Dashboard
+                </a>
+                <a asp-controller="Account" asp-action="Index">
+                    <i class="fa fa-wallet"></i> Accounts
+                </a>
+                <a asp-controller="Account" asp-action="Exchange">
+                    <i class="fa fa-right-left"></i> Exchange Currency
+                </a>
+                <a asp-controller="Beneficiary" asp-action="Index">
+                    <i class="fa fa-users"></i> Beneficiaries
+                </a>
+                <a asp-controller="Transfer" asp-action="Index">
+                    <i class="fa fa-money-bill-transfer"></i> Transfers
+                </a>
+                <a asp-controller="Transfer" asp-action="Mobile">
+                    <i class="fa fa-mobile-screen"></i> Mobile Transfer
+                </a>
+                <a asp-controller="Stripe" asp-action="Deposit">
+                    <i class="fa fa-credit-card"></i> Add Funds
+                </a>
+
+                <div class="sidebar-section">Activity</div>
+
+                <a asp-controller="Transaction" asp-action="Index">
+                    <i class="fa fa-list"></i> Transactions
+                </a>
+                <a asp-controller="Receipt" asp-action="Index">
+                    <i class="fa fa-receipt"></i> Receipts
+                </a>
+                <a asp-controller="Notification" asp-action="Index">
+                    <i class="fa fa-bell"></i> Notifications
+                </a>
+                <a asp-controller="Review" asp-action="Index">
+                    <i class="fa fa-star"></i> Reviews
+                </a>
+                <a asp-controller="Map" asp-action="Index">
+                    <i class="fa fa-map-location-dot"></i> Agent Map
+                </a>
+            }
+
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="sidebar-section">Administration</div>
+                <a asp-controller="Admin" asp-action="Index">
+                    <i class="fa fa-shield"></i> Admin Panel
+                </a>
+                <a asp-controller="Admin" asp-action="Agents">
+                    <i class="fa fa-user-check"></i> Approve Agents
+                </a>
+                <a asp-controller="Admin" asp-action="FundRequests">
+                    <i class="fa fa-hand-holding-dollar"></i> All Top-Ups
+                </a>
+                <a asp-controller="Currency" asp-action="Index">
+                    <i class="fa fa-coins"></i> Currencies
+                </a>
+                <a asp-controller="Commission" asp-action="Index">
+                    <i class="fa fa-percent"></i> Commissions
+                </a>
+            }
+
+            @if (User.IsInRole("Agent"))
+            {
+                <div class="sidebar-section">Agent</div>
+                <a asp-controller="Agent" asp-action="Index">
+                    <i class="fa fa-store"></i> Agent Dashboard
+                </a>
+                <a asp-controller="Agent" asp-action="Profile">
+                    <i class="fa fa-id-card"></i> My Profile
+                </a>
+                <a asp-controller="Agent" asp-action="CashIn">
+                    <i class="fa fa-hand-holding-dollar"></i> Cash Pickups
+                </a>
+                <a asp-controller="Agent" asp-action="FundRequests">
+                    <i class="fa fa-inbox"></i> Fund Requests
+                </a>
+            }
+        </div>
+
+        <div class="flex-grow-1">
+            <nav class="navbar topbar">
+                <span class="fw-semibold text-dark">
+                    <i class="fa fa-building-columns text-primary me-2"></i>
+                    OPA Pay — Money Transfer Platform
+                </span>
+                <div class="d-flex align-items-center gap-3">
+                    @if (User.Identity!.IsAuthenticated)
+                    {
+                        @await Component.InvokeAsync("ActiveAccount")
+                        <span class="text-muted small">
+                            <i class="fa fa-user-circle me-1"></i>
+                            @User.FindFirst("FullName")?.Value
+                        </span>
+                        <a class="btn btn-outline-danger btn-sm" asp-controller="Auth" asp-action="Logout">
+                            <i class="fa fa-sign-out-alt me-1"></i> Logout
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-outline-primary btn-sm" asp-controller="Auth" asp-action="Login">Login</a>
+                        <a class="btn btn-opa btn-sm" asp-controller="Auth" asp-action="Register">Register</a>
+                    }
+                </div>
+            </nav>
+
+            <div class="container-fluid p-4">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-opa">@TempData["Success"]</div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-opa">@TempData["Error"]</div>
+                }
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

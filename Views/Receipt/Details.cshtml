@@ -1,0 +1,31 @@
+﻿@model OPA_Pay.Models.Receipt
+@{ ViewData["Title"] = "Receipt"; var transfer = ViewBag.Transfer as OPA_Pay.Models.Transfer; }
+
+<div class="receipt-box my-4">
+    <div class="text-center border-bottom pb-3 mb-3">
+        <h3 class="text-primary fw-bold">OPA Pay</h3>
+        <p class="text-muted mb-0">Official Transfer Receipt</p>
+    </div>
+    <div class="row g-2">
+        <div class="col-6 text-muted">Receipt Number</div>
+        <div class="col-6 fw-semibold text-end">@Model.ReceiptNumber</div>
+        <div class="col-6 text-muted">Transfer Reference</div>
+        <div class="col-6 fw-semibold text-end">@transfer?.Reference</div>
+        <div class="col-6 text-muted">Beneficiary</div>
+        <div class="col-6 fw-semibold text-end">@transfer?.Beneficiary?.FullName</div>
+        <div class="col-6 text-muted">Amount</div>
+        <div class="col-6 fw-semibold text-end">@transfer?.Amount.ToString("N2")</div>
+        <div class="col-6 text-muted">Fee</div>
+        <div class="col-6 fw-semibold text-end">@transfer?.Fee.ToString("N2")</div>
+        <div class="col-6 text-muted">Total</div>
+        <div class="col-6 fw-bold text-primary text-end">@((transfer?.Amount + transfer?.Fee)?.ToString("N2"))</div>
+        <div class="col-6 text-muted">Status</div>
+        <div class="col-6 fw-semibold text-end">@transfer?.Status</div>
+        <div class="col-6 text-muted">Date</div>
+        <div class="col-6 fw-semibold text-end">@Model.CreatedAt.ToString("f")</div>
+    </div>
+    <div class="text-center mt-4">
+        <button onclick="window.print()" class="btn btn-opa"><i class="fa fa-print me-1"></i> Print Receipt</button>
+        <a asp-action="Index" class="btn btn-opa-outline ms-2">All Receipts</a>
+    </div>
+</div>
